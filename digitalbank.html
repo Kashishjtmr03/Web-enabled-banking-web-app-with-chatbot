@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Banking Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .bank-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bank-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chatbot-window {
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+        
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 15px;
+            color: white;
+        }
+        
+        .chatbot-body {
+            height: 380px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f9fafb;
+        }
+        
+        .chatbot-input {
+            border-top: 1px solid #e5e7eb;
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 70%;
+        }
+        
+        .user-message {
+            background-color: var(--accent-color);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+        
+        .bot-message {
+            background-color: #e5e7eb;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+        
+        .quick-reply {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 12px;
+            background-color: #e5e7eb;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .quick-reply:hover {
+            background-color: #d1d5db;
+        }
+        
+        .service-card {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+        }
+        
+        .service-card img {
+            transition: transform 0.5s ease;
+        }
+        
+        .service-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        .service-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .service-card:hover .service-overlay {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2baf0c51-e340-4071-a99a-020b7d91468c.png" alt="Digital Bank logo with blue gradient background" class="rounded-full">
+                    <a href="index.html" class="text-xl font-bold">Digital Bank</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-blue-200">Home</a>
+                    <a href="accounts.html" class="hover:text-blue-200">Accounts</a>
+                    <a href="transfer.html" class="hover:text-blue-200">Transfer</a>
+                    <a href="payments.html" class="hover:text-blue-200">Payments</a>
+                    <a href="loans.html" class="hover:text-blue-200">Loans</a>
+                    <a href="cards.html" class="hover:text-blue-200">Cards</a>
+                    <a href="support.html" class="hover:text-blue-200">Support</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="login.html" class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700">Login</a>
+                    <button class="md:hidden text-2xl" id="mobile-menu-button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div class="md:hidden hidden pt-4 pb-2" id="mobile-menu">
+                <a href="index.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Home</a>
+                <a href="accounts.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Accounts</a>
+                <a href="transfer.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Transfer</a>
+                <a href="payments.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Payments</a>
+                <a href="loans.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Loans</a>
+                <a href="cards.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Cards</a>
+                <a href="support.html" class="block py-2 hover:bg-blue-700 px-2 rounded">Support</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Your Digital Banking Solution</h1>
+                    <p class="text-xl mb-6">Secure, convenient, and seamless banking experience for your modern lifestyle.</p>
+                    <div class="flex space-x-4">
+                        <a href="register.html" class="px-6 py-3 bg-white text-blue-700 rounded-md font-semibold hover:bg-gray-100">Open an Account</a>
+                        <a href="#services" class="px-6 py-3 border border-white rounded-md font-semibold hover:bg-white hover:text-blue-700">Explore Services</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d73700d3-8308-4b1e-bc1f-6c20aeafaa75.png" alt="Happy customer using mobile banking app on smartphone with secure login interface" class="rounded-lg shadow-xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Account Overview -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Your Account Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bank-card bg-white p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                            <i class="fas fa-wallet text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Savings Account</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Balance</p>
+                    <p class="text-2xl font-bold mb-4">₹25,348.75</p>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Account No: XXXX-6789</span>
+                        <a href="accounts.html" class="text-blue-600 hover:underline">Details</a>
+                    </div>
+                </div>
+                <div class="bank-card bg-white p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                            <i class="fas fa-credit-card text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Credit Card</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Available Limit</p>
+                    <p class="text-2xl font-bold mb-4">₹47,652.00</p>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Card No: XXXX-4532</span>
+                        <a href="cards.html" class="text-blue-600 hover:underline">Details</a>
+                    </div>
+                </div>
+                <div class="bank-card bg-white p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                            <i class="fas fa-rupee-sign text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Personal Loan</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Outstanding</p>
+                    <p class="text-2xl font-bold mb-4">₹2,15,000.00</p>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>EMI: ₹8,542/month</span>
+                        <a href="loans.html" class="text-blue-600 hover:underline">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Quick Actions</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <a href="transfer.html" class="bank-card bg-white p-6 text-center hover:bg-blue-50">
+                    <div class="p-4 rounded-full bg-blue-100 text-blue-600 mx-auto mb-4 w-fit">
+                        <i class="fas fa-exchange-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">Transfer Money</h3>
+                </a>
+                <a href="payments.html" class="bank-card bg-white p-6 text-center hover:bg-green-50">
+                    <div class="p-4 rounded-full bg-green-100 text-green-600 mx-auto mb-4 w-fit">
+                        <i class="fas fa-receipt text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">Pay Bills</h3>
+                </a>
+                <a href="cards.html" class="bank-card bg-white p-6 text-center hover:bg-purple-50">
+                    <div class="p-4 rounded-full bg-purple-100 text-purple-600 mx-auto mb-4 w-fit">
+                        <i class="fas fa-credit-card text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">Card Services</h3>
+                </a>
+                <a href="loans.html" class="bank-card bg-white p-6 text-center hover:bg-orange-50">
+                    <div class="p-4 rounded-full bg-orange-100 text-orange-600 mx-auto mb-4 w-fit">
+                        <i class="fas fa-hand-holding-usd text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">Apply for Loan</h3>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banking Services -->
+    <section id="services" class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Banking Services</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="service-card bank-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/42e8513e-edb6-45f2-818f-8b55db4630b0.png" alt="Bank employee explaining mobile banking features to customer" class="w-full h-full object-cover">
+                    <div class="service-overlay">
+                        <h3 class="text-xl font-bold mb-2">Mobile Banking</h3>
+                        <p>Bank anytime, anywhere with our secure mobile app</p>
+                        <a href="mobile-banking.html" class="text-blue-300 hover:text-blue-100 inline-block mt-2">Learn More →</a>
+                    </div>
+                </div>
+                <div class="service-card bank-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/af1740a4-a898-4ac5-ae83-e7110553097f.png" alt="Various types of bank cards displayed on wooden table" class="w-full h-full object-cover">
+                    <div class="service-overlay">
+                        <h3 class="text-xl font-bold mb-2">Cards</h3>
+                        <p>Credit, debit and prepaid cards for all your needs</p>
+                        <a href="cards.html" class="text-blue-300 hover:text-blue-100 inline-block mt-2">Learn More →</a>
+                    </div>
+                </div>
+                <div class="service-card bank-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/dad2a62e-37f6-46f9-9b58-ec5f3dabf3ab.png" alt="Couple reviewing mortgage documents with bank representative" class="w-full h-full object-cover">
+                    <div class="service-overlay">
+                        <h3 class="text-xl font-bold mb-2">Loans</h3>
+                        <p>Personal, home, auto and business loans</p>
+                        <a href="loans.html" class="text-blue-300 hover:text-blue-100 inline-block mt-2">Learn More →</a>
+                    </div>
+                </div>
+                <div class="service-card bank-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/40bc57dc-e3fb-469f-8548-c161b15fa1c5.png" alt="Hand transferring money between smartphones with secure transaction overlay" class="w-full h-full object-cover">
+                    <div class="service-overlay">
+                        <h3 class="text-xl font-bold mb-2">Fund Transfer</h3>
+                        <p>Quick and secure money transfers</p>
+                        <a href="transfer.html" class="text-blue-300 hover:text-blue-100 inline-block mt-2">Learn More →</a>
+                    </div>
+                </div>
+                <div class="service-card bank-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a32ff38d-cb23-48fc-84da-cff10c0bc47a.png" alt="Businessman analyzing investment portfolio charts on tablet" class="w-full h-full object-cover">
+                    <div class="service-overlay">
+                        <h3 class="text-xl font-bold mb-2">Investments</h3>
+                        <p>Fixed deposits, mutual funds and more</p>
+                        <a href="investments.html" class="text-blue-300 hover:text-blue-100 inline-block mt-2">Learn More →</a>
+                    </div>
+                </div>
+                <div class="service-card bank-card">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/37cd1f7d-556f-4c07-a9b4-0e942827c055.png" alt="Customer service representative assisting elderly customer via video call" class="w-full h-full object-cover">
+                    <div class="service-overlay">
+                        <h3 class="text-xl font-bold mb-2">Customer Support</h3>
+                        <p>24/7 assistance for all your banking needs</p>
+                        <a href="support.html" class="text-blue-300 hover:text-blue-100 inline-block mt-2">Learn More →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Transactions -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Recent Transactions</h2>
+                <a href="transactions.html" class="text-blue-600 hover:underline">View All</a>
+            </div>
+            <div class="bg-white rounded-lg overflow-hidden shadow">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100 text-left text-gray-600 font-medium">
+                            <th class="py-3 px-6">Date</th>
+                            <th class="py-3 px-6">Description</th>
+                            <th class="py-3 px-6">Amount</th>
+                            <th class="py-3 px-6">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6">Today</td>
+                            <td class="py-4 px-6">Amazon Online Shopping</td>
+                            <td class="py-4 px-6 text-red-500">-₹1,499.00</td>
+                            <td class="py-4 px-6"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Completed</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6">Yesterday</td>
+                            <td class="py-4 px-6">Salary Credit</td>
+                            <td class="py-4 px-6 text-green-500">+₹45,000.00</td>
+                            <td class="py-4 px-6"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Completed</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6">2 days ago</td>
+                            <td class="py-4 px-6">Electricity Bill Payment</td>
+                            <td class="py-4 px-6 text-red-500">-₹2,350.00</td>
+                            <td class="py-4 px-6"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Completed</span></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6">3 days ago</td>
+                            <td class="py-4 px-6">Transfer to John Doe</td>
+                            <td class="py-4 px-6 text-red-500">-₹5,000.00</td>
+                            <td class="py-4 px-6"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Completed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <div class="chatbot-window" id="chatbot-window">
+            <div class="chatbot-header flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="bg-white rounded-full p-2 mr-3">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9574153f-d1af-4599-beed-d40afcc7c47d.png" alt="AI Bank Assistant avatar with friendly blue gradient background" class="w-8 h-8">
+                    </div>
+                    <h3 class="font-semibold">Bank Assistant</h3>
+                </div>
+                <button id="close-chatbot" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chatbot-body" id="chatbot-body">
+                <div class="bot-message">
+                    Hello! I'm your digital banking assistant. How can I help you today?
+                    
+                    <div class="mt-2">
+                        <div class="quick-reply" onclick="sendQuickReply('Account balance')">Account balance</div>
+                        <div class="quick-reply" onclick="sendQuickReply('Fund transfer')">Fund transfer</div>
+                        <div class="quick-reply" onclick="sendQuickReply('Loan inquiry')">Loan inquiry</div>
+                        <div class="quick-reply" onclick="sendQuickReply('Card issues')">Card issues</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <div class="flex">
+                    <input type="text" id="chatbot-input" class="flex-1 border rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
+                    <button id="send-message" class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-toggle" id="chatbot-toggle">
+            <i class="fas fa-comment-dots text-2xl"></i>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Digital Bank</h3>
+                    <p class="text-gray-400">Providing secure and innovative banking solutions for the digital age.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="accounts.html" class="text-gray-400 hover:text-white">Accounts</a></li>
+                        <li><a href="cards.html" class="text-gray-400 hover:text-white">Cards</a></li>
+                        <li><a href="loans.html" class="text-gray-400 hover:text-white">Loans</a></li>
+                        <li><a href="investments.html" class="text-gray-400 hover:text-white">Investments</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="support.html" class="text-gray-400 hover:text-white">Support</a></li>
+                        <li><a href="faq.html" class="text-gray-400 hover:text-white">FAQs</a></li>
+                        <li><a href="privacy.html" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="terms.html" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contact Us</h4>
+                    <address class="text-gray-400 not-italic">
+                        <p><i class="fas fa-map-marker-alt mr-2"></i> 123 Banking Street, Financial District</p>
+                        <p><i class="fas fa-phone-alt mr-2"></i> +91 9876543210</p>
+                        <p><i class="fas fa-envelope mr-2"></i> support@digitalbank.com</p>
+                    </address>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2023 Digital Bank. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Chatbot Toggle
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const closeChatbot = document.getElementById('close-chatbot');
+
+        chatbotToggle.addEventListener('click', function() {
+            chatbotWindow.style.display = chatbotWindow.style.display === 'block' ? 'none' : 'block';
+        });
+
+        closeChatbot.addEventListener('click', function() {
+            chatbotWindow.style.display = 'none';
+        });
+
+        // Chatbot Functionality
+        const chatbotBody = document.getElementById('chatbot-body');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const sendMessageBtn = document.getElementById('send-message');
+
+        function addBotMessage(message, quickReplies = []) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'bot-message';
+            messageDiv.innerHTML = message;
+            
+            if (quickReplies.length > 0) {
+                const quickReplyContainer = document.createElement('div');
+                quickReplyContainer.className = 'mt-2';
+                
+                quickReplies.forEach(reply => {
+                    const quickReply = document.createElement('div');
+                    quickReply.className = 'quick-reply';
+                    quickReply.textContent = reply;
+                    quickReply.onclick = function() {
+                        sendQuickReply(reply);
+                    };
+                    quickReplyContainer.appendChild(quickReply);
+                });
+                
+                messageDiv.appendChild(quickReplyContainer);
+            }
+            
+            chatbotBody.appendChild(messageDiv);
+            chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        }
+
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'user-message';
+            messageDiv.textContent = message;
+            chatbotBody.appendChild(messageDiv);
+            chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        }
+
+        function sendQuickReply(message) {
+            addUserMessage(message);
+            processMessage(message);
+        }
+
+        function processMessage(message) {
+            // Simple chatbot responses - in a real app, this would connect to a more sophisticated AI/NLP system
+            let response = "";
+            let quickReplies = [];
+            
+            message = message.toLowerCase();
+            
+            if (message.includes('balance') || message.includes('account')) {
+                response = "Your savings account balance is ₹25,348.75. Would you like to know about other account details?";
+                quickReplies = ['Current account balance', 'Credit card balance', 'No thanks'];
+            } 
+            else if (message.includes('transfer') || message.includes('send money')) {
+                response = "You can transfer funds to another account. Would you like to:";
+                quickReplies = ['Transfer to registered payee', 'Add new beneficiary', 'See transfer limits'];
+            }
+            else if (message.includes('loan') || message.includes('emi')) {
+                response = "Your personal loan EMI is ₹8,542 per month. There are ₹2,15,000 remaining on your loan. How can I help with loans?";
+                quickReplies = ['Apply for new loan', 'Increase loan limit', 'Change EMI date'];
+            }
+            else if (message.includes('card') || message.includes('credit')) {
+                response = "Your credit card (ending 4532) has ₹47,652 available credit. Your next payment of ₹5,200 is due on 15th of next month.";
+                quickReplies = ['Report lost card', 'Request card upgrade', 'Dispute transaction'];
+            }
+            else if (message.includes('hello') || message.includes('hi') || message.includes('help')) {
+                response = "Hello! I'm your digital banking assistant. How can I help you today?";
+                quickReplies = ['Account balance', 'Fund transfer', 'Loan inquiry', 'Card issues'];
+            }
+            else {
+                response = "I'm sorry, I didn't understand that. Could you please try asking differently or select from these common questions?";
+                quickReplies = ['Account balance', 'Transactions history', 'Contact support', 'Branch locations'];
+            }
+            
+            // Simulate typing delay
+            setTimeout(() => {
+                addBotMessage(response, quickReplies);
+            }, 1000);
+        }
+
+        sendMessageBtn.addEventListener('click', function() {
+            const message = chatbotInput.value.trim();
+            if (message) {
+                addUserMessage(message);
+                chatbotInput.value = '';
+                processMessage(message);
+            }
+        });
+
+        chatbotInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessageBtn.click();
+            }
+        });
+
+        // Simulate welcome message after 3 seconds
+        setTimeout(() => {
+            chatbotWindow.style.display = 'block';
+        }, 3000);
+    </script>
+</body>
+</html>
